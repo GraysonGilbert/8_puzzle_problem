@@ -47,31 +47,30 @@ class PuzzleState:
         self.parent_node_index_i = parent_node_index_i
 
         self.board = self.arrange_board()
+        self.possible_moves = self.get_possible_moves()
+        self.zero_location = self.find_zero()
+
+        print(self.board)
     
     def __eq__(self, other):
         return np.array_equal(self.node_state_i, other.node_state_i)
         
-
     def __hash__(self):
         return hash(tuple(self.node_state_i.flatten()))
 
     def arrange_board(self): # Rearranges board state into 3x3 column-based grid
-        #data = self.node_state_i
         return self.node_state_i.reshape((3,3), order="F")
     
 
     def find_zero(self): # Find and return 0 location in the current node state
         row, col = np.where(self.board == 0)
-        
-        print(self.board)
 
         return row[0], col[0]
     
     def get_possible_moves(self): # Find all valild moves given the current node state
 
         row, col = self.find_zero()
-        #print(row, col)
-        moves = []
+        moves = {}
 
         move_options = {
             "up": (-1, 0),
@@ -84,10 +83,64 @@ class PuzzleState:
             new_row, new_col = row + row_move, col + col_move
 
             if 0 <= new_row < 3 and  0 <= new_col < 3:
-                moves.append(move)
+                moves[move] = (row_move, col_move)
 
-        print(moves)
+        return moves
 
+    def swap_tiles(self, current_row, current_col, new_row, new_col):
+        new_state = self.node_state_i.copy()
+        
+        index_1 = current_col * 3 + current_row
+        index_2 = new_col * 3 + new_row
+
+        new_state[index_1], new_state[index_2] = new_state[index_2], new_state[index_1]
+        #print(new_state)
+        return new_state
+
+    def action_move_up(self): # Moves 0 tile up if possible
+        if "up" in self.possible_moves:
+            row_change, col_change = self.possible_moves["up"]
+            current_row, current_col = self.zero_location
+            new_row, new_col = current_row + row_change, current_col + col_change
+
+            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
+        #print(new_puzzle_state)
+        
+        return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
+
+    def action_move_down(self): # Moves 0 tile down if possible
+        if "down" in self.possible_moves:
+            row_change, col_change = self.possible_moves["down"]
+            current_row, current_col = self.zero_location
+            new_row, new_col = current_row + row_change, current_col + col_change
+
+            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
+
+        return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
+    
+    def action_move_left(self): # Moves 0 tile left if possible
+        if "left" in self.possible_moves:
+            row_change, col_change = self.possible_moves["left"]
+            current_row, current_col = self.zero_location
+            new_row, new_col = current_row + row_change, current_col + col_change
+
+            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
+
+        return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
+    
+
+    def action_move_right(self): # Moves 0 tile right if possible
+        if "right" in self.possible_moves:
+            row_change, col_change = self.possible_moves["right"]
+            current_row, current_col = self.zero_location
+            new_row, new_col = current_row + row_change, current_col + col_change
+
+            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
+
+        return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
+    
+
+"""
 class PuzzleSolver:
     def __init__():
         pass
@@ -98,6 +151,7 @@ class PuzzleUtils:
     def __init__(self):
         pass
 
+"""
 
 #node_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
 node_state = [7, 6, 1, 5, 0, 4, 8, 3, 2]
@@ -105,7 +159,9 @@ index = 0
 
 test = PuzzleState(node_state_i=node_state, node_index_i= index, parent_node_index_i=0)
 
-print(node_state)
-test.arrange_board()
-test.find_zero()
-test.get_possible_moves()
+#print(node_state)
+#test.arrange_board()
+#test.find_zero()
+#test.get_possible_moves()
+#test.swap_tiles(1,1,0,1)
+test.action_move_right()
