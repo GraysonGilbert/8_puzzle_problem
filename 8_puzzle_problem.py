@@ -4,42 +4,6 @@ import numpy as np
 from collections import deque
 
 
-"""Step 2: Given the state of the current node, calculate the location of the blank tile [0] in
-the 3x3 matrix and returns the output as a pair (i,j), where 0 <= i <= 2 and 0 <= j <= 2"""
-
-
-
-
-"""Step 3: write 4 subfunctions to move the blank tile in 4 different directions."""
-
-# Move Left
-
-# Move right
-
-# Move Up
-
-# Move Down
-
-"""Step 4: Append all the possible new nodes in a list. Check to see if the new node you explored
-has been visited already and do not repeat that action for that node."""
-
-
-
-"""Step 5: Write a subfunction (generate_path) that uses backtracking to find the path between the inital and final node"""
-
-
-""" Code Outputs:
-    -   Nodes.txt - All the explored states should be present as a list.
-    NodesInfo.txt - Information about all the nodes explored (1st col. Node Index, 2nd col. Parent Node Index, 3rd col. Node)
-    nodePath.txt - the solution to the puzzle as solved by your code. the elements are being stored column-wise i.e. for this
-                    state 1, 4, 7, 2, 5, 8, 3, 6, 0 the eight puzzle state is
-                    
-                    1 2 3
-                    4 5 6
-                    7 8 0   
-
-                    The order of states should be from start node to goal node"""
-
 class PuzzleState:
     def __init__(self, node_state_i, node_index_i, parent_node_index_i = None):
         self.node_state_i = np.array(node_state_i)
@@ -50,7 +14,8 @@ class PuzzleState:
         self.possible_moves = self.get_possible_moves()
         self.zero_location = self.find_zero()
 
-        print(self.board)
+        #print(self.possible_moves.keys())
+        #print(self.board)
     
     def __eq__(self, other):
         return np.array_equal(self.node_state_i, other.node_state_i)
@@ -171,6 +136,8 @@ class PuzzleSolver:
             self.node_info.append([current_state.node_index_i, current_state.parent_node_index_i, current_state.node_state_i.flatten()])
 
             if np.array_equal(current_state.node_state_i, self.goal_state):
+                
+                print("found goal state!")
                 self.generate_path(current_state)
                 self.write_files()
 
@@ -178,7 +145,9 @@ class PuzzleSolver:
             
             self.visited_states[tuple(current_state.node_state_i.flatten())] = current_state
 
+            print(current_state.possible_moves.keys())
             for move in current_state.possible_moves.keys():
+                
                 new_state = None
 
                 if move == "up":
@@ -204,17 +173,32 @@ class PuzzleSolver:
         path = []
 
         while current_state is not None:
+
+            print(f"Current State ID: {id(current_state)}, Node Index: {current_state.node_index_i}")  # Debug print
             path.append(current_state)
+
+            if current_state.node_index_i == 0:
+                break
+
             current_state = self.get_parent_state(current_state)
-            #print(current_state)
-        
+
+
+            
         self.node_path = path[::-1] # Sets the node path equal to the reverse of path
 
     def get_parent_state(self, state):
-        parent_state = self.visited_states.get(tuple(state.node_state_i.flatten()))
+        print("get_parent_state called")
 
-        if parent_state and parent_state.parent_node_index_i == state.parent_node_index_i:
-            return parent_state
+        if state.parent_node_index_i is None:
+            return None
+        
+        for s in self.visited_states.values():
+            if s.node_index_i == state.parent_node_index_i:
+                return s
+        #parent_state = self.visited_states.get(tuple(state.node_state_i.flatten()))
+
+        #if parent_state and parent_state.parent_node_index_i == state.parent_node_index_i:
+        #    return parent_state
         
         return None
  
@@ -239,7 +223,7 @@ class PuzzleSolver:
 
 #node_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
 #node_state = [7, 6, 1, 5, 0, 4, 8, 3, 2]
-node_state = [1, 4, 7, 2, 5, 8, 3, 0, 6]
+node_state = [1, 4, 0, 2, 5, 7, 3, 6, 8]
 
 goal_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
 index = 0
