@@ -1,4 +1,4 @@
-# Solving the 8 Puzzle Problem using Breadth First Search (BFS)
+"""Solving the 8 Puzzle Problem using the Breadth First Search (BFS) algorithm"""
 
 import numpy as np
 from collections import deque
@@ -213,18 +213,20 @@ class PuzzleSolver:
         
 
 
-# Test Cases:
+"""Test Cases:"""
 
-#node_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
-#node_state = [2, 8, 3, 1, 6, 4, 7, 0, 5]
-node_state = [1, 4, 7, 0, 2, 8, 3, 5, 6]
+#node_state = [1, 4, 7, 2, 5, 8, 3, 6, 0] # Solvable, initial state = goal state
+#node_state = [2, 8, 3, 1, 6, 4, 7, 0, 5] # Solvable
+#node_state = [8, 2, 3, 1, 6, 4, 7, 0, 5] # Not Solvable
+node_state = [1, 4, 7, 0, 2, 8, 3, 5, 6] # Solvable
+
 
 goal_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
 
-# Creating instances of the PuzzleState and PuzzleSolver classes
+"""Creating instances of the PuzzleState and PuzzleSolver classes"""
 test = PuzzleState(node_state_i=node_state, node_index_i=0, parent_node_index_i=0)
 path_test = PuzzleSolver(test, goal_state)
 
 
-# Solving the 8-Puzzle Problem
+"""Solving the 8-Puzzle Problem"""
 path_test.solve_puzzle_bfs()
