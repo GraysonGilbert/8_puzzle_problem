@@ -1,3 +1,4 @@
+#Files given from the Professor
 Node_index	Parent_Node_index	Node
 0	0	0 3 6 4 3 1 7 8 2
 1	0	8 3 2 7 4 6 0 5 1

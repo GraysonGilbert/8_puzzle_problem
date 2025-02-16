@@ -3,37 +3,36 @@
 import numpy as np
 from collections import deque
 
-
+"""This class handles all the actions related to determining and modifying the board (node) state for the puzzle."""
 class PuzzleState:
     def __init__(self, node_state_i, node_index_i, parent_node_index_i = None):
         self.node_state_i = np.array(node_state_i)
         self.node_index_i = node_index_i
         self.parent_node_index_i = parent_node_index_i
 
-        self.board = self.arrange_board()
-        self.possible_moves = self.get_possible_moves()
-        self.zero_location = self.find_zero()
-
-        
-
-        #print(self.possible_moves.keys())
-        #print(self.board)
+        self.board = self.arrange_board()   # Arrange board at initialization
+        self.possible_moves = self.get_possible_moves() # Calculate possible moves at initialization
+        self.zero_location = self.find_zero()   # Find zero location at initialization
     
-    def __eq__(self, other):
+    """Allows for comparing puzzle states to determine if they are equal to one another"""
+    def __eq__(self, other): 
         return np.array_equal(self.node_state_i, other.node_state_i)
-        
-    def __hash__(self):
+
+    """Creates a hash value of the puzzle state based on its node index. Required to efficiently track visited states.""" 
+    def __hash__(self): 
         return hash(tuple(self.node_state_i.flatten()))
 
-    def arrange_board(self): # Rearranges board state into 3x3 column-based grid
+    """Rearranges board state into 3x3 column-based grid."""
+    def arrange_board(self): 
         return self.node_state_i.reshape((3,3), order="F")
     
-    def find_zero(self): # Find and return 0 location in the current node state
+    """Find and return 0 location of the current board (node) state."""
+    def find_zero(self):
         row, col = np.where(self.board == 0)
-
         return row[0], col[0]
     
-    def get_possible_moves(self): # Find all valild moves given the current node state
+    """Find all valild moves given the current board (node) state."""
+    def get_possible_moves(self):
 
         row, col = self.find_zero()
         moves = {}
@@ -45,7 +44,7 @@ class PuzzleState:
             "right": (0, 1)
         }
         
-        for move, (row_move, col_move) in move_options.items():
+        for move, (row_move, col_move) in move_options.items(): # Checks that a move is valid, meaning it stays within the bounds of the 3x3 puzzle
             new_row, new_col = row + row_move, col + col_move
 
             if 0 <= new_row < 3 and  0 <= new_col < 3:
@@ -61,11 +60,11 @@ class PuzzleState:
         index_2 = new_col * 3 + new_row
 
         new_state[index_1], new_state[index_2] = new_state[index_2], new_state[index_1]
-        #print(new_state)
+
         return new_state
     
-    """Moves the 0 tile up 1 row"""
-    def action_move_up(self): # Moves 0 tile up if possible
+    """Moves the 0 tile up 1 row."""
+    def action_move_up(self): 
         if "up" in self.possible_moves:
             row_change, col_change = self.possible_moves["up"]
             current_row, current_col = self.zero_location
@@ -75,8 +74,8 @@ class PuzzleState:
         
         return None
 
-    """Moves the 0 tile down 1 row"""
-    def action_move_down(self): # Moves 0 tile down if possible
+    """Moves the 0 tile down 1 row."""
+    def action_move_down(self):
         if "down" in self.possible_moves:
             row_change, col_change = self.possible_moves["down"]
             current_row, current_col = self.zero_location
@@ -86,8 +85,8 @@ class PuzzleState:
 
         return None
     
-    """Moves the 0 tile left 1 column"""
-    def action_move_left(self): # Moves 0 tile left if possible
+    """Moves the 0 tile left 1 column."""
+    def action_move_left(self):
         if "left" in self.possible_moves:
             row_change, col_change = self.possible_moves["left"]
             current_row, current_col = self.zero_location
@@ -98,7 +97,7 @@ class PuzzleState:
         return None
     
     """Moves the 0 tile right 1 column"""
-    def action_move_right(self): # Moves 0 tile right if possible
+    def action_move_right(self):
         if "right" in self.possible_moves:
             row_change, col_change = self.possible_moves["right"]
             current_row, current_col = self.zero_location
@@ -108,9 +107,7 @@ class PuzzleState:
 
         return None
     
-"""Output each explored state to Nodes.txt"""
-"""Output each node explored to NodesInfo.txt"""
-
+"""This class handles all the actions related to solving the puzzle. Including the BFS search algorithm."""
 class PuzzleSolver:
     def __init__(self, initial_state, goal_state):
         self.initial_state = initial_state
@@ -119,13 +116,13 @@ class PuzzleSolver:
         self.visited_states = {}
         self.queue = deque([self.initial_state])
 
-        #print(self.queue)
         self.node_counter = 1
 
         self.node_path = []
         self.node_info = []
         self.nodes_explored = []
-        
+    
+    """Performs a Breadth First Search (BFS) algorithm with backtracking to find the optimal path from inital puzzle state to goal state."""
     def solve_puzzle_bfs(self):
         while self.queue:
             current_state = self.queue.popleft()
@@ -135,7 +132,7 @@ class PuzzleSolver:
 
             if np.array_equal(current_state.node_state_i, self.goal_state):
                 
-                print("found goal state!")
+                print("Found goal state!")
                 self.generate_path(current_state)
                 self.write_files()
 
@@ -143,7 +140,6 @@ class PuzzleSolver:
             
             self.visited_states[tuple(current_state.node_state_i.flatten())] = current_state
 
-            #print(current_state.possible_moves.keys())
             for move in current_state.possible_moves.keys():
                 
                 new_board_state = None
@@ -166,11 +162,9 @@ class PuzzleSolver:
                         self.queue.append(new_state) 
                         self.visited_states[tuple(new_state.node_state_i.flatten())] = new_state
             
-            #print(self.nodes_explored)
-            #print(self.node_info)
-            #print(self.visited_states)
-            
+        print('Exited loop, this configuration is not solvable!')
 
+    """Generates a path using backtracking from the goal state back to the initial puzzle state."""
     def generate_path(self, goal_state):
         current_state = goal_state
         path = []
@@ -189,8 +183,8 @@ class PuzzleSolver:
             
         self.node_path = path[::-1] # Sets the node path equal to the reverse of path
 
+    """Determines the parent node state to move through graph."""
     def get_parent_state(self, state):
-        #print("get_parent_state called")
 
         if state.parent_node_index_i is None:
             return None
@@ -202,7 +196,7 @@ class PuzzleSolver:
         return None
  
     
-    """Write the 3 output files from the generated lists."""
+    """Writes the 3 output files from the generated lists."""
     def write_files(self):
         with open("Nodes.txt", "w") as nodes_file:
             for state in self.nodes_explored:
@@ -219,25 +213,18 @@ class PuzzleSolver:
         
 
 
+# Test Cases:
 
 #node_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
-node_state = [7, 6, 1, 5, 0, 4, 8, 3, 2]
-
-#test cases
-
-#node_state = [1, 4, 7, 2, 6, 0, 3, 8, 5]
-#node_state = [1, 4, 0, 2, 5, 7, 3, 6, 8]
+#node_state = [2, 8, 3, 1, 6, 4, 7, 0, 5]
+node_state = [1, 4, 7, 0, 2, 8, 3, 5, 6]
 
 goal_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
-index = 0
 
-test = PuzzleState(node_state_i=node_state, node_index_i= index, parent_node_index_i=0)
-
+# Creating instances of the PuzzleState and PuzzleSolver classes
+test = PuzzleState(node_state_i=node_state, node_index_i=0, parent_node_index_i=0)
 path_test = PuzzleSolver(test, goal_state)
-#print(node_state)
-#test.arrange_board()
-#test.find_zero()
-#test.get_possible_moves()
-#test.swap_tiles(1,1,0,1)
-#test.action_move_right()
+
+
+# Solving the 8-Puzzle Problem
 path_test.solve_puzzle_bfs()
