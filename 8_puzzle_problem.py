@@ -14,6 +14,8 @@ class PuzzleState:
         self.possible_moves = self.get_possible_moves()
         self.zero_location = self.find_zero()
 
+        
+
         #print(self.possible_moves.keys())
         #print(self.board)
     
@@ -69,10 +71,8 @@ class PuzzleState:
             current_row, current_col = self.zero_location
             new_row, new_col = current_row + row_change, current_col + col_change
 
-            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
-        #print(new_puzzle_state)
+            return self.swap_tiles(current_row, current_col, new_row, new_col) 
         
-            return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
         return None
 
     """Moves the 0 tile down 1 row"""
@@ -82,9 +82,8 @@ class PuzzleState:
             current_row, current_col = self.zero_location
             new_row, new_col = current_row + row_change, current_col + col_change
 
-            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
+            return self.swap_tiles(current_row, current_col, new_row, new_col) 
 
-            return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
         return None
     
     """Moves the 0 tile left 1 column"""
@@ -94,9 +93,8 @@ class PuzzleState:
             current_row, current_col = self.zero_location
             new_row, new_col = current_row + row_change, current_col + col_change
 
-            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
+            return self.swap_tiles(current_row, current_col, new_row, new_col) 
 
-            return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
         return None
     
     """Moves the 0 tile right 1 column"""
@@ -106,9 +104,8 @@ class PuzzleState:
             current_row, current_col = self.zero_location
             new_row, new_col = current_row + row_change, current_col + col_change
 
-            new_puzzle_state = self.swap_tiles(current_row, current_col, new_row, new_col) 
+            return self.swap_tiles(current_row, current_col, new_row, new_col) 
 
-            return PuzzleState(new_puzzle_state, self.node_index_i + 1, self.node_index_i)
         return None
     
 """Output each explored state to Nodes.txt"""
@@ -123,6 +120,7 @@ class PuzzleSolver:
         self.queue = deque([self.initial_state])
 
         #print(self.queue)
+        self.node_counter = 1
 
         self.node_path = []
         self.node_info = []
@@ -145,23 +143,28 @@ class PuzzleSolver:
             
             self.visited_states[tuple(current_state.node_state_i.flatten())] = current_state
 
-            print(current_state.possible_moves.keys())
+            #print(current_state.possible_moves.keys())
             for move in current_state.possible_moves.keys():
                 
-                new_state = None
+                new_board_state = None
 
                 if move == "up":
-                    new_state = current_state.action_move_up()
+                    new_board_state = current_state.action_move_up()
                 elif move == "down":
-                    new_state = current_state.action_move_down()
+                    new_board_state = current_state.action_move_down()
                 elif move == "left":
-                    new_state = current_state.action_move_left()
+                    new_board_state = current_state.action_move_left()
                 elif move == "right":
-                    new_state = current_state.action_move_right()
+                    new_board_state = current_state.action_move_right()
                 
-                if new_state is not None and tuple(new_state.node_state_i.flatten()) not in self.visited_states:
-                    self.queue.append(new_state) 
-                    self.visited_states[tuple(new_state.node_state_i.flatten())] = new_state
+                if new_board_state is not None:
+                    new_state = PuzzleState(new_board_state, self.node_counter, current_state.node_index_i)
+
+                    if tuple(new_state.node_state_i.flatten()) not in self.visited_states:
+                        new_state = PuzzleState(new_board_state, self.node_counter, current_state.node_index_i)
+                        self.node_counter += 1
+                        self.queue.append(new_state) 
+                        self.visited_states[tuple(new_state.node_state_i.flatten())] = new_state
             
             #print(self.nodes_explored)
             #print(self.node_info)
@@ -187,7 +190,7 @@ class PuzzleSolver:
         self.node_path = path[::-1] # Sets the node path equal to the reverse of path
 
     def get_parent_state(self, state):
-        print("get_parent_state called")
+        #print("get_parent_state called")
 
         if state.parent_node_index_i is None:
             return None
@@ -195,10 +198,6 @@ class PuzzleSolver:
         for s in self.visited_states.values():
             if s.node_index_i == state.parent_node_index_i:
                 return s
-        #parent_state = self.visited_states.get(tuple(state.node_state_i.flatten()))
-
-        #if parent_state and parent_state.parent_node_index_i == state.parent_node_index_i:
-        #    return parent_state
         
         return None
  
@@ -222,8 +221,12 @@ class PuzzleSolver:
 
 
 #node_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
-#node_state = [7, 6, 1, 5, 0, 4, 8, 3, 2]
-node_state = [1, 4, 0, 2, 5, 7, 3, 6, 8]
+node_state = [7, 6, 1, 5, 0, 4, 8, 3, 2]
+
+#test cases
+
+#node_state = [1, 4, 7, 2, 6, 0, 3, 8, 5]
+#node_state = [1, 4, 0, 2, 5, 7, 3, 6, 8]
 
 goal_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
 index = 0
