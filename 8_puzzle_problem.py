@@ -217,8 +217,8 @@ class PuzzleSolver:
 #node_state = [1, 4, 7, 2, 5, 8, 3, 6, 0] # Solvable, initial state = goal state
 #node_state = [2, 8, 3, 1, 6, 4, 7, 0, 5] # Solvable
 #node_state = [8, 2, 3, 1, 6, 4, 7, 0, 5] # Not Solvable
-#node_state = [8, 2, 3, 6, 5, 0, 7, 4, 1]  # Solvable
-node_state = [1, 4, 7, 0, 2, 8, 3, 5, 6] # Solvable
+node_state = [8, 2, 3, 6, 5, 0, 7, 4, 1]  # Solvable
+#node_state = [1, 4, 7, 0, 2, 8, 3, 5, 6] # Solvable
 
 
 goal_state = [1, 4, 7, 2, 5, 8, 3, 6, 0]
